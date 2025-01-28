@@ -5,6 +5,22 @@ All notable changes to the Resonera project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2025-01-28
+### Added
+- Support for all brainwave frequency ranges in `src/resonera/audio/generator.py`:
+  - Delta waves (0.5-4 Hz) for deep sleep
+  - Theta waves (4-8 Hz) for meditation
+  - Gamma waves (30-100 Hz) for high cognition
+- Optimal carrier frequency selection for different ranges
+- Comprehensive unit testing suite:
+  - Audio generation tests in `src/resonera/audio/test_generator.py`
+  - Safety validation tests in `src/resonera/safety/test_validator.py`
+
+### Technical
+- Improved audio generation with frequency-optimized carrier waves
+- Added proper Flask app context handling in tests
+- Fixed test suite implementation using Python's built-in unittest
+
 ## [0.1.0] - 2025-01-28
 
 ### Added
