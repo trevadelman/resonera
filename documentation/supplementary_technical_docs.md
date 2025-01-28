@@ -1,18 +1,33 @@
 # Supplementary Technical Documentation
 
+## Implementation Stages
+
+### Proof of Concept
+- Basic frequency generation
+- Simple audio processing
+- Core safety checks
+- Essential monitoring
+- Basic deployment requirements
+
+### Production (Future)
+- Advanced frequency manipulation
+- Complex audio processing
+- Comprehensive safety systems
+- Real-time monitoring
+- Full deployment suite
+
 ## 1. Frequency Generation Guide
 
-### Binaural Beat Generation
+### POC Binaural Beat Generation
 ```python
-def generate_binaural_beat(base_frequency, target_frequency, duration, sample_rate=44100):
+def generate_basic_binaural(duration, sample_rate=44100):
     """
-    Example implementation for generating binaural beats.
+    Basic POC implementation for alpha state binaural beats.
     
-    Parameters:
-    - base_frequency: The carrier frequency (usually 200-400 Hz)
-    - target_frequency: Desired brainwave frequency (e.g., 10 Hz for alpha)
-    - duration: Length of the audio in seconds
-    - sample_rate: Audio sample rate (default 44100 Hz)
+    Fixed parameters for simplicity:
+    - base_frequency: 200 Hz carrier
+    - target_frequency: 10 Hz (alpha state)
+    - duration: Length in seconds
     """
     t = np.linspace(0, duration, int(sample_rate * duration))
     left_channel = np.sin(2 * np.pi * base_frequency * t)
@@ -24,19 +39,17 @@ def generate_binaural_beat(base_frequency, target_frequency, duration, sample_ra
 # alpha_beat = generate_binaural_beat(200, 10, 300)  # 5-minute alpha state audio
 ```
 
-### Harmonic Relationship Calculator
+### POC Frequency Calculator
 ```python
-def calculate_harmonics(fundamental_frequency, num_harmonics=5):
+def calculate_basic_frequency():
     """
-    Calculate harmonic frequencies for optimal entrainment.
+    Fixed alpha frequency for POC.
+    Returns 10 Hz for alpha state.
     """
-    harmonics = []
-    for i in range(1, num_harmonics + 1):
-        harmonics.append(fundamental_frequency * i)
-    return harmonics
+    return 10  # Alpha frequency
 
-# Example:
-# theta_harmonics = calculate_harmonics(6)  # Theta wave harmonics
+# Future enhancement:
+# Will support multiple frequencies and harmonics
 ```
 
 ## 2. Safety Protocol Implementation
@@ -60,20 +73,18 @@ class FrequencyValidator:
         return True
 ```
 
-## 3. Neural State Transition Guide
+## 3. POC State Management
 
-### State Transition Matrix
+### Fixed State Parameters
 ```plaintext
-Current State → Target State: Recommended Transition Time
+POC Implementation:
+- Fixed alpha state (10 Hz)
+- 5-minute sessions
+- No state transitions in POC
 
-Delta → Theta:     5-7 minutes
-Theta → Alpha:     3-5 minutes
-Alpha → Beta:      2-4 minutes
-Beta → Gamma:      4-6 minutes
-Gamma → Beta:      3-5 minutes
-Beta → Alpha:      4-6 minutes
-Alpha → Theta:     5-7 minutes
-Theta → Delta:     6-8 minutes
+Future Enhancement:
+Will include full state transition matrix
+and dynamic session management
 ```
 
 ### Implementation Notes
@@ -82,21 +93,22 @@ Theta → Delta:     6-8 minutes
 - Include recovery periods
 - Implement fail-safes for rapid state changes
 
-## 4. Audio Processing Pipeline
+## 4. POC Audio Processing
 
-### Signal Chain
+### Basic Signal Chain
 ```plaintext
-Raw Frequency Generation
+POC Implementation:
+Frequency Generation
         ↓
-Harmonic Enhancement
+Volume Control
         ↓
-Volume Envelope
+Basic Format Conversion
         ↓
-Background Sound Integration
-        ↓
-Format Conversion
-        ↓
-Delivery Optimization
+Local File Storage
+
+Future Enhancement:
+Will include full processing pipeline
+with advanced features
 ```
 
 ### Quality Standards
@@ -220,28 +232,31 @@ async def create_transition(transition: StateTransition):
 
 ## 10. Deployment Checklist
 
-### Pre-deployment Verification
+### POC Deployment Verification
 ```plaintext
-1. Frequency Generation Accuracy
-   □ Test all frequency ranges
-   □ Verify harmonic relationships
-   □ Check transition smoothness
+1. Basic Functionality
+   □ Test alpha frequency generation
+   □ Verify basic audio output
+   □ Check volume controls
 
-2. Safety Systems
-   □ Frequency limiters
-   □ Volume controls
-   □ Emergency stops
-   □ Error handlers
+2. Essential Safety
+   □ Basic frequency validation
+   □ Volume limiting
+   □ Emergency stop button
 
-3. Performance Optimization
-   □ CPU usage
-   □ Memory management
-   □ Storage optimization
-   □ Network efficiency
+3. Core Performance
+   □ Basic resource usage
+   □ Local storage checks
+   □ Simple error handling
 
-4. User Safety
-   □ Warning systems
-   □ Consent management
-   □ Emergency contacts
-   □ Recovery protocols
+4. User Protection
+   □ Basic health screening
+   □ Simple consent form
+   □ Stop session capability
+
+Future Enhancements:
+- Comprehensive testing suite
+- Advanced safety systems
+- Performance optimization
+- Full user protection framework
 ```

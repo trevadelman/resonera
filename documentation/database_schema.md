@@ -1,6 +1,54 @@
 # Database Schema and Data Architecture
 
-## Core Tables
+## Implementation Stages
+
+### Proof of Concept (SQLite)
+```sql
+-- Basic user management
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    account_status TEXT DEFAULT 'active'
+);
+
+-- Essential user preferences
+CREATE TABLE user_preferences (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    voice_preference TEXT,  -- 'male', 'female', 'neutral'
+    background_sound TEXT,  -- 'nature', 'white_noise', 'ambient'
+    session_duration INTEGER,  -- in minutes
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+-- Basic session tracking
+CREATE TABLE sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    end_time TIMESTAMP,
+    session_type TEXT,  -- 'morning', 'evening'
+    frequency REAL,
+    effectiveness INTEGER CHECK (effectiveness BETWEEN 1 AND 5),
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+-- Simple feedback storage
+CREATE TABLE session_feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id INTEGER,
+    rating INTEGER CHECK (rating BETWEEN 1 AND 5),
+    feedback_text TEXT,
+    FOREIGN KEY(session_id) REFERENCES sessions(id)
+);
+```
+
+### Migration to Production
+When ready to scale, migrate to PostgreSQL with full features:
+
+## Production Tables (PostgreSQL)
 
 ### Users
 ```sql

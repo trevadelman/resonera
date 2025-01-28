@@ -2,14 +2,28 @@
 
 ## 1. Core Components
 
-### 1.1 Frequency Generation Engine
+### 1.1 Implementation Stages
+
+#### Proof of Concept
+- Basic sine wave generation
+- Simple frequency validation
+- Standard audio format (16-bit, 44.1kHz)
+- Core safety checks
+
+#### Production Evolution
+- Advanced waveform generation
+- Sophisticated frequency analysis
+- High-quality audio (24-bit, up to 96kHz)
+- Comprehensive safety systems
+
+### 1.2 Frequency Generation Engine
+
+#### POC Implementation
 ```python
-class FrequencyGenerator:
-    def __init__(self, sample_rate=44100, bit_depth=24):
+class BasicFrequencyGenerator:
+    def __init__(self, sample_rate=44100):
         self.sample_rate = sample_rate
-        self.bit_depth = bit_depth
-        self.nyquist = sample_rate / 2
-        self.safety_validator = FrequencyValidator()
+        self.safety_validator = BasicFrequencyValidator()
     
     def generate_sine_wave(self, frequency, duration, amplitude=0.8):
         """
@@ -27,91 +41,120 @@ class FrequencyGenerator:
         return amplitude * np.sin(2 * np.pi * frequency * t)
 ```
 
-### 1.2 Binaural Beat Generation
+#### POC Binaural Beat Generation
 ```python
-class BinauralBeatGenerator(FrequencyGenerator):
+class BasicBinauralGenerator:
     def generate_binaural(self, carrier_freq, target_freq, duration):
         """
-        Generate binaural beats.
+        Basic binaural beat generation.
         
-        Parameters:
-        - carrier_freq: Base frequency (recommended 200-400 Hz)
-        - target_freq: Desired brainwave frequency
-        - duration: Length in seconds
-        
-        Returns:
-        - tuple of (left_channel, right_channel)
+        Simplified for POC:
+        - Fixed carrier frequency (200Hz)
+        - Basic safety validation
+        - Simple stereo output
         """
-        # Validate frequencies
-        if not self.safety_validator.validate_frequency(target_freq):
-            raise FrequencyError("Target frequency outside safe range")
+        if not self.validate_frequency(target_freq):
+            raise ValueError("Unsafe frequency")
             
-        left_channel = self.generate_sine_wave(carrier_freq, duration)
-        right_channel = self.generate_sine_wave(carrier_freq + target_freq, duration)
+        left = self.generate_sine(200, duration)
+        right = self.generate_sine(200 + target_freq, duration)
         
-        return left_channel, right_channel
+        return left, right
+
+    def validate_frequency(self, freq):
+        """Basic frequency validation"""
+        return 0.5 <= freq <= 40  # Safe range for POC
 ```
 
-### 1.3 Isochronic Tone Generation
+#### Migration to Production
 ```python
-class IsochronicGenerator(FrequencyGenerator):
-    def generate_isochronic(self, frequency, duration, duty_cycle=0.5):
-        """
-        Generate isochronic tones with square wave modulation.
-        
-        Parameters:
-        - frequency: Target brainwave frequency
-        - duration: Length in seconds
-        - duty_cycle: On/off ratio (0.0-1.0)
-        """
-        carrier = self.generate_sine_wave(300, duration)  # 300 Hz carrier
-        modulator = signal.square(2 * np.pi * frequency * np.linspace(0, duration, int(self.sample_rate * duration)))
-        return carrier * ((modulator + 1) / 2)  # Normalize to 0-1
+class AdvancedBinauralGenerator:
+    """Future implementation with:
+    - Dynamic carrier frequency
+    - Advanced safety checks
+    - Phase alignment
+    - Harmonic enhancement
+    """
+    pass
 ```
 
-## 2. Frequency Transition Management
-
-### 2.1 Transition Controller
+### 1.3 POC Isochronic Generation
 ```python
-class FrequencyTransitionController:
-    def __init__(self, max_transition_rate=2.0):  # Hz per second
-        self.max_transition_rate = max_transition_rate
+class BasicIsochronicGenerator:
+    def generate_isochronic(self, frequency, duration):
+        """
+        Basic isochronic tone generation.
+        
+        Simplified for POC:
+        - Fixed carrier (300Hz)
+        - Fixed duty cycle (50%)
+        - Basic modulation
+        """
+        carrier = self.generate_sine(300, duration)
+        modulator = self.generate_square(frequency, duration)
+        return carrier * modulator
+```
+
+#### Migration to Production
+- Add variable duty cycle
+- Implement smooth envelope control
+- Add harmonic enrichment
+- Enhance modulation patterns
+```
+
+## 2. Frequency Management
+
+### 2.1 POC Transition Control
+```python
+class BasicTransitionController:
+    def __init__(self):
+        self.max_rate = 1.0  # Hz per second for POC
     
-    def calculate_transition_steps(self, start_freq, end_freq, duration):
+    def calculate_steps(self, start_freq, end_freq, duration):
         """
-        Calculate safe frequency transition steps.
+        Simple linear transition calculation.
         
-        Returns:
-        - List of (time, frequency) tuples
+        POC Limitations:
+        - Linear transitions only
+        - Fixed rate limit
+        - Basic safety checks
         """
-        freq_diff = end_freq - start_freq
-        min_duration = abs(freq_diff) / self.max_transition_rate
-        
-        if duration < min_duration:
-            raise TransitionError(f"Duration too short for safe transition")
+        if abs(end_freq - start_freq) / duration > self.max_rate:
+            raise ValueError("Transition too fast")
             
-        steps = np.linspace(start_freq, end_freq, num=int(duration * 10))
-        times = np.linspace(0, duration, len(steps))
-        
-        return list(zip(times, steps))
+        steps = np.linspace(start_freq, end_freq, 10)
+        return steps
 ```
 
-### 2.2 Harmonic Overlay System
+### Migration to Production
+- Implement variable transition rates
+- Add non-linear transitions
+- Enhanced safety validation
+- Optimized step calculation
+```
+
+### 2.2 POC Harmonic System
 ```python
-class HarmonicGenerator:
-    def generate_harmonics(self, fundamental_freq, num_harmonics=3):
+class BasicHarmonicGenerator:
+    def generate_harmonics(self, freq):
         """
-        Generate harmonic frequencies for enhanced entrainment.
+        Basic harmonic generation.
         
-        Returns:
-        - List of harmonic frequencies
+        POC Features:
+        - Single harmonic only
+        - Basic safety limits
+        - Fixed amplitude
         """
-        harmonics = []
-        for i in range(1, num_harmonics + 1):
-            harmonic_freq = fundamental_freq * i
-            if harmonic_freq < 100:  # Safe upper limit
-                harmonics.append(harmonic_freq)
-        return harmonics
+        if freq * 2 < 40:  # Safe limit for POC
+            return [freq * 2]
+        return []
+```
+
+### Migration to Production
+- Multiple harmonic generation
+- Dynamic amplitude control
+- Advanced safety limits
+- Harmonic relationship analysis
 ```
 
 ## 3. Audio Processing Pipeline

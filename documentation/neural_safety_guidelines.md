@@ -1,25 +1,32 @@
 # Neural Safety Guidelines
 
+## Implementation Stages
+
+### Proof of Concept Safety Measures
+- Essential health screening
+- Basic frequency safety limits
+- Simple volume controls
+- Core user guidelines
+- Basic incident reporting
+
+### Production Safety Features (Future)
+- Comprehensive health assessment
+- Advanced monitoring systems
+- Real-time adaptation
+- Detailed analytics
+- Full compliance framework
+
 ## 1. User Safety Screening
 
-### 1.1 Initial Assessment Protocol
+### 1.1 POC Assessment Protocol
 ```python
-class UserSafetyScreening:
+class BasicSafetyScreening:
     def __init__(self):
-        self.contraindications = {
-            'absolute': [
-                'epilepsy',
-                'seizure_history',
-                'brain_implants',
-                'severe_mental_illness'
-            ],
-            'relative': [
-                'migraines',
-                'tinnitus',
-                'anxiety_disorders',
-                'pregnancy'
-            ]
-        }
+        self.core_contraindications = [
+            'epilepsy',
+            'seizure_history',
+            'severe_mental_illness'
+        ]
         
     def perform_screening(self, user_health_data):
         """
@@ -35,45 +42,32 @@ class UserSafetyScreening:
         return risk_level.is_safe, restrictions, risk_level.warnings
 ```
 
-### 1.2 Health Questionnaire
-Required health information from users:
+### 1.2 POC Health Questionnaire
+Essential health information:
+- History of seizures
 - Neurological conditions
-- Mental health history
 - Current medications
-- Previous adverse reactions to audio/visual stimulation
-- Sleep disorders
-- Stress levels
-- Cardiovascular conditions
+- Previous adverse reactions to audio
 
 ## 2. Technical Safety Measures
 
-### 2.1 Frequency Safety Limits
+### 2.1 POC Safety Limits
 ```python
-class FrequencySafetyLimits:
-    ABSOLUTE_LIMITS = {
-        'min_frequency': 0.1,  # Hz
-        'max_frequency': 100,  # Hz
-        'max_transition_rate': 2.0,  # Hz/second
-        'max_session_duration': 7200,  # seconds
-        'min_session_duration': 60,  # seconds
-    }
-    
-    STATE_LIMITS = {
-        'delta': {'min': 0.5, 'max': 4},
-        'theta': {'min': 4, 'max': 8},
-        'alpha': {'min': 8, 'max': 14},
-        'beta': {'min': 14, 'max': 30},
-        'gamma': {'min': 30, 'max': 100}
+class BasicSafetyLimits:
+    POC_LIMITS = {
+        'min_frequency': 8,    # Hz (Alpha range only for POC)
+        'max_frequency': 12,   # Hz
+        'max_duration': 600,   # seconds (10 minutes)
+        'min_duration': 300    # seconds (5 minutes)
     }
 ```
 
-### 2.2 Volume and Intensity Controls
+### 2.2 POC Volume Controls
 ```python
-class AudioSafetyControls:
+class BasicVolumeControl:
     def __init__(self):
-        self.max_db = 85  # Maximum decibel level
-        self.dynamic_range = 20  # dB
-        self.fade_duration = 3.0  # seconds
+        self.max_db = 75  # Conservative max level for POC
+        self.fade_duration = 2.0  # seconds
         
     def apply_safety_envelope(self, audio_data):
         """
@@ -89,14 +83,14 @@ class AudioSafetyControls:
 
 ## 3. Session Safety Protocols
 
-### 3.1 Real-time Monitoring
+### 3.1 POC Session Monitoring
 ```python
-class SessionMonitor:
+class BasicSessionMonitor:
     def __init__(self):
-        self.warning_signs = {
-            'rapid_heart_rate': 100,  # bpm
-            'high_stress_indicator': 0.8,  # normalized
-            'attention_drop': 0.3,  # normalized
+        self.basic_checks = {
+            'duration': 300,    # 5 minutes
+            'frequency': 10,    # Alpha state
+            'volume': 75        # dB max
         }
         
     def monitor_session(self, user_metrics):
@@ -111,14 +105,13 @@ class SessionMonitor:
         return warnings
 ```
 
-### 3.2 Emergency Protocols
+### 3.2 POC Safety Controls
 ```python
-class EmergencyProtocol:
+class BasicSafetyControl:
     def __init__(self):
-        self.emergency_actions = {
-            'mild_discomfort': self.reduce_intensity,
-            'moderate_reaction': self.pause_session,
-            'severe_reaction': self.terminate_session
+        self.actions = {
+            'discomfort': self.stop_session,
+            'technical_issue': self.stop_session
         }
         
     def handle_emergency(self, severity, session_data):
@@ -148,29 +141,19 @@ Users should stop the session if experiencing:
 - Irregular heartbeat
 - Disorientation
 
-## 5. Adaptation Protocols
+## 5. POC Usage Guidelines
 
-### 5.1 Progressive Exposure
+### 5.1 Fixed Session Parameters
 ```python
-class AdaptationProtocol:
-    def calculate_initial_exposure(self, user_profile):
+class BasicSessionParameters:
+    def get_session_params(self):
         """
-        Calculate safe starting parameters for new users.
-        """
-        return {
-            'initial_duration': 300,  # 5 minutes
-            'frequency_intensity': 0.5,  # 50% of normal
-            'complexity_level': 'basic'
-        }
-    
-    def progression_schedule(self, user_history):
-        """
-        Calculate safe progression of session intensity.
+        Fixed parameters for POC sessions.
         """
         return {
-            'duration_increase': 300,  # 5 minutes per week
-            'intensity_increase': 0.1,  # 10% per week
-            'complexity_increase': 'gradual'
+            'duration': 300,    # 5 minutes
+            'frequency': 10,    # Alpha state
+            'intensity': 0.5    # 50% of max
         }
 ```
 
@@ -189,25 +172,20 @@ class SensitivityAssessment:
         return self.generate_sensitivity_profile(metrics)
 ```
 
-## 6. Record Keeping and Monitoring
+## 6. POC Record Keeping
 
-### 6.1 Session Logging
+### 6.1 Basic Session Logging
 ```python
-class SessionLogger:
+class BasicSessionLogger:
     def log_session(self, session_data):
         """
-        Log session details including:
-        - Frequencies used
-        - Duration
-        - User responses
-        - Any warnings or incidents
+        Basic session logging for POC.
         """
         return {
-            'session_id': uuid.uuid4(),
             'timestamp': datetime.now(),
-            'parameters': session_data.parameters,
-            'user_responses': session_data.responses,
-            'incidents': session_data.incidents
+            'duration': session_data.duration,
+            'frequency': session_data.frequency,
+            'user_feedback': session_data.feedback
         }
 ```
 
@@ -251,20 +229,20 @@ class IncidentResponse:
         return response(user_data)
 ```
 
-## 8. Compliance and Documentation
+## 8. POC Compliance
 
-### 8.1 Legal Requirements
-- Informed consent documentation
+### 8.1 Essential Requirements
+- Basic user agreement
+- Health disclaimer
+- Emergency stop instructions
+- Incident reporting process
+
+### Migration to Production
+- Full informed consent system
 - Medical disclaimer requirements
-- Data protection compliance
-- Emergency contact information
-- Incident reporting procedures
-
-### 8.2 Safety Certifications
-- Required testing protocols
-- Compliance documentation
-- Regular safety audits
-- Staff training requirements
+- Comprehensive data protection
+- Safety certifications
+- Regular audits
 
 ## 9. Regular Review and Updates
 

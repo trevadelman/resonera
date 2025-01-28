@@ -1,33 +1,49 @@
 # Resonera API Documentation
 
 ## Overview
-The resonera API provides programmatic access to neural entrainment audio generation, user management, and session tracking. This RESTful API uses JSON for request and response payloads and JWT for authentication.
+The Resonera API provides programmatic access to neural entrainment audio generation, user management, and session tracking. This RESTful API uses JSON for request and response payloads and JWT for authentication.
+
+### Implementation Stages
+
+#### Proof of Concept
+- Simple Flask-based API
+- Basic JWT authentication
+- Local file storage
+- SQLite database
+- Core functionality only
+
+#### Production (Future)
+- Full FastAPI implementation
+- Advanced authentication
+- Cloud storage integration
+- PostgreSQL database
+- Extended feature set
 
 ## Base URL
 ```
-Production: https://api.resonera.com/v1
-Development: http://localhost:8000/v1
+POC: http://localhost:5000/api
+Production (Future): https://api.resonera.com/v1
 ```
 
 ## Authentication
-All API requests must include a JWT token in the header:
+### POC Authentication
+Basic JWT authentication:
 ```http
 Authorization: Bearer <token>
 ```
 
-## Rate Limiting
-- Free tier: 60 requests per hour
-- Premium tier: 1000 requests per hour
-- Headers included in response:
-  - X-RateLimit-Limit
-  - X-RateLimit-Remaining
-  - X-RateLimit-Reset
+### Production Authentication (Future)
+- Enhanced JWT with refresh tokens
+- Rate limiting:
+  - Free tier: 60 requests per hour
+  - Premium tier: 1000 requests per hour
+- Advanced monitoring and security
 
 ## Endpoints
 
 ### Authentication
 
-#### Register New User
+#### POC: Register User
 ```http
 POST /auth/register
 Content-Type: application/json
@@ -35,9 +51,7 @@ Content-Type: application/json
 Request:
 {
     "email": "user@example.com",
-    "phone_number": "+1234567890",
-    "password": "securePassword123",
-    "time_zone": "America/New_York"
+    "password": "securePassword123"
 }
 
 Response: 201 Created
@@ -86,29 +100,19 @@ Error Response: 401 Unauthorized
 }
 ```
 
-### Neural Profile Management
+### User Preferences
 
-#### Create Neural Profile
+#### POC: Set User Preferences
 ```http
-POST /profiles
+POST /preferences
 Content-Type: application/json
 Authorization: Bearer <token>
 
 Request:
 {
-    "sensitivity_level": 7,
-    "contraindications": ["epilepsy", "migraines"],
-    "preferred_states": {
-        "alpha": {
-            "min": 8.0,
-            "max": 12.0
-        },
-        "theta": {
-            "min": 4.0,
-            "max": 8.0
-        }
-    },
-    "optimal_transition_time": 300
+    "voice_preference": "female",
+    "background_sound": "nature",
+    "session_duration": 300
 }
 
 Response: 201 Created
@@ -121,7 +125,7 @@ Response: 201 Created
 
 ### Audio Generation
 
-#### Generate Entrainment Audio
+#### POC: Generate Basic Audio
 ```http
 POST /audio/generate
 Content-Type: application/json
@@ -129,30 +133,10 @@ Authorization: Bearer <token>
 
 Request:
 {
-    "session_type": "meditation",
-    "base_frequency": 200,
-    "target_frequency": 10,
-    "duration": 1200,
-    "transitions": [
-        {
-            "time": 0,
-            "frequency": 8,
-            "duration": 300
-        },
-        {
-            "time": 300,
-            "frequency": 10,
-            "duration": 600
-        }
-    ],
-    "background": {
-        "type": "nature",
-        "volume": 0.3
-    },
-    "voice": {
-        "type": "female",
-        "script_id": "meditation_basic_01"
-    }
+    "session_type": "relaxation",
+    "target_frequency": 10,  # Alpha state
+    "duration": 300,
+    "background": "nature"
 }
 
 Response: 202 Accepted
@@ -195,7 +179,7 @@ Response: 200 OK
 
 ### Session Management
 
-#### Create Session
+#### POC: Create Session
 ```http
 POST /sessions
 Content-Type: application/json
@@ -204,13 +188,8 @@ Authorization: Bearer <token>
 Request:
 {
     "session_type": "morning",
-    "target_state": "alpha",
-    "duration": 1200,
-    "preferences": {
-        "voice_type": "female",
-        "background": "nature",
-        "volume": 75
-    }
+    "duration": 300,
+    "target_state": "alpha"
 }
 
 Response: 201 Created
@@ -222,7 +201,7 @@ Response: 201 Created
 }
 ```
 
-#### Record Session Feedback
+#### POC: Record Session Feedback
 ```http
 POST /sessions/{session_id}/feedback
 Content-Type: application/json
@@ -230,16 +209,9 @@ Authorization: Bearer <token>
 
 Request:
 {
-    "rating": 4,
-    "physical_effects": {
-        "relaxation": 8,
-        "drowsiness": 3
-    },
-    "mental_effects": {
-        "clarity": 7,
-        "focus": 8
-    },
-    "notes": "Felt very relaxed and focused after the session"
+    "rating": 4,  # 1-5 scale
+    "effectiveness": 4,  # 1-5 scale
+    "notes": "Felt relaxed after the session"
 }
 
 Response: 200 OK
@@ -275,24 +247,14 @@ Response: 200 OK
 - `processing_error`: Audio generation failed
 - `storage_error`: File storage/retrieval error
 
-## WebSocket API
+## Future Enhancements
 
-### Real-time Session Monitoring
-```javascript
-// Connect to WebSocket
-ws://api.resonera.com/v1/sessions/{session_id}/monitor
-
-// Message Format
-{
-    "type": "brainwave_data",
-    "timestamp": "2024-01-27T10:30:00Z",
-    "data": {
-        "current_frequency": 10.2,
-        "target_frequency": 10.0,
-        "coherence_level": 0.95
-    }
-}
-```
+### Production Features
+- WebSocket support for real-time monitoring
+- Advanced neural profile management
+- Complex audio generation options
+- Detailed session analytics
+- Enhanced error handling and monitoring
 
 ## Appendix
 

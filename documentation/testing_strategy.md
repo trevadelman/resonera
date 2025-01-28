@@ -2,19 +2,35 @@
 
 ## 1. Core Testing Philosophy
 
-### 1.1 Testing Principles
-- Safety First: All tests must validate safety before functionality
-- Comprehensive Coverage: Test both technical and neurological aspects
-- Automated Validation: Automate all possible testing scenarios
-- Continuous Testing: Regular testing throughout development
-- Data-Driven: All tests must be measurable and reproducible
+### 1.1 Testing Approach
 
-### 1.2 Testing Levels
+#### POC Testing Principles
+- Safety First: Basic safety validations must pass
+- Essential Coverage: Focus on core functionality
+- Manual Testing: Simple validation procedures
+- Basic Monitoring: Track essential metrics
+- Iterative: Quick feedback loops
+
+#### Production Testing Principles
+- Comprehensive Safety: Advanced validation suite
+- Full Coverage: Technical and neurological testing
+- Automated Testing: Continuous validation
+- Advanced Monitoring: Detailed analytics
+- Data-Driven: Scientific validation
+
+### 1.2 Testing Stages
 ```python
-class TestingLevels:
-    LEVELS = {
-        'L1': 'Unit Tests',
-        'L2': 'Integration Tests',
+class TestingStages:
+    POC_STAGES = {
+        'L1': 'Basic Unit Tests',
+        'L2': 'Core Integration Tests',
+        'L3': 'Manual Safety Checks',
+        'L4': 'User Feedback'
+    }
+    
+    PRODUCTION_STAGES = {
+        'L1': 'Comprehensive Unit Tests',
+        'L2': 'Full Integration Tests',
         'L3': 'System Tests',
         'L4': 'Neurological Validation',
         'L5': 'User Acceptance Testing'
@@ -23,30 +39,24 @@ class TestingLevels:
 
 ## 2. Technical Testing
 
-### 2.1 Frequency Generation Testing
+### 2.1 POC Frequency Testing
 ```python
-class FrequencyGenerationTests:
-    def test_frequency_accuracy(self, generated_signal, target_frequency):
+class BasicFrequencyTests:
+    def test_frequency(self, signal, target_freq):
         """
-        Test frequency generation accuracy.
+        Basic frequency validation.
         
-        Parameters:
-        - generated_signal: numpy array of audio samples
-        - target_frequency: expected frequency in Hz
+        POC Simplifications:
+        - Basic FFT analysis
+        - Wider tolerance (0.5Hz)
+        - Simple pass/fail result
         
         Returns:
-        - bool: True if within 0.1Hz tolerance
-        - float: actual measured frequency
-        - float: frequency error
+        - bool: Pass/Fail
         """
-        fft_result = np.fft.fft(generated_signal)
-        frequencies = np.fft.fftfreq(len(generated_signal))
-        peak_frequency = frequencies[np.argmax(np.abs(fft_result))]
-        
-        tolerance = 0.1  # Hz
-        error = abs(peak_frequency - target_frequency)
-        
-        return error <= tolerance, peak_frequency, error
+        fft_result = np.fft.fft(signal)
+        freq = np.abs(fft_result).argmax() * 44100 / len(signal)
+        return abs(freq - target_freq) <= 0.5
 
     def test_phase_alignment(self, left_channel, right_channel):
         """
@@ -59,15 +69,14 @@ class FrequencyGenerationTests:
         pass  # Implementation details
 ```
 
-### 2.2 Audio Quality Tests
+### 2.2 POC Audio Quality
 ```python
-class AudioQualityTests:
+class BasicQualityTests:
     def __init__(self):
-        self.quality_thresholds = {
-            'snr': 90.0,  # dB
-            'thd': 0.01,  # %
-            'dynamic_range': 60.0,  # dB
-            'frequency_response_flatness': 0.5  # dB
+        self.basic_thresholds = {
+            'peak_level': -6.0,  # dB
+            'noise_floor': -60.0,  # dB
+            'distortion': 1.0  # %
         }
     
     def test_audio_quality(self, audio_data):
@@ -113,28 +122,25 @@ class PerformanceTests:
 
 ## 3. Neurological Testing
 
-### 3.1 Brainwave Entrainment Validation
+### 3.1 POC Effectiveness Testing
 ```python
-class EntrainmentTests:
-    def validate_entrainment_effect(self, test_data):
+class BasicEffectivenessTests:
+    def validate_session(self, user_feedback):
         """
-        Validate entrainment effectiveness.
+        Basic effectiveness validation.
         
-        Parameters:
-        - test_data: EEG readings during session
+        POC Approach:
+        - User feedback forms
+        - Simple comfort ratings
+        - Basic effectiveness scores
         
         Returns:
-        - bool: successful entrainment
-        - float: entrainment strength
-        - dict: detailed metrics
+        - bool: Session considered effective
         """
-        metrics = {
-            'frequency_following': self.measure_following_response(),
-            'coherence': self.measure_coherence(),
-            'entrainment_time': self.measure_entrainment_time()
-        }
-        
-        return self.analyze_entrainment_metrics(metrics)
+        return (
+            user_feedback['comfort'] >= 3 and
+            user_feedback['effectiveness'] >= 3
+        )
 ```
 
 ### 3.2 Safety Validation Tests
@@ -213,25 +219,26 @@ class SystemIntegrationTests:
 
 ## 5. User Acceptance Testing
 
-### 5.1 User Experience Tests
+### 5.1 POC User Testing
 ```python
-class UserExperienceTests:
-    def collect_user_feedback(self, session_data):
+class BasicUserTests:
+    def collect_feedback(self):
         """
-        Collect and analyze user feedback.
+        Simple feedback collection.
+        
+        POC Features:
+        - Basic survey form
+        - 1-5 rating scales
+        - Optional comments
         
         Returns:
-        - dict: analyzed feedback metrics
-        - list: user comments
-        - float: satisfaction score
+        - dict: Basic feedback data
         """
-        metrics = {
-            'comfort_level': self.measure_comfort(),
-            'effectiveness': self.measure_effectiveness(),
-            'side_effects': self.track_side_effects()
+        return {
+            'comfort': self.get_comfort_rating(),
+            'effectiveness': self.get_effect_rating(),
+            'continue': self.get_continue_willingness()
         }
-        
-        return self.analyze_user_feedback(metrics)
 ```
 
 ### 5.2 Long-term Usage Tests
@@ -253,16 +260,14 @@ class LongTermTests:
 
 ## 6. Continuous Testing
 
-### 6.1 Automated Test Pipeline
+### 6.1 POC Test Pipeline
 ```python
-class TestPipeline:
+class BasicTestPipeline:
     def __init__(self):
-        self.stages = [
-            UnitTests(),
-            IntegrationTests(),
-            SystemTests(),
-            PerformanceTests(),
-            SafetyTests()
+        self.basic_tests = [
+            BasicSafetyChecks(),
+            BasicFrequencyTests(),
+            BasicQualityTests()
         ]
     
     def run_pipeline(self):
@@ -298,20 +303,17 @@ class TestingMonitor:
 
 ## 7. Testing Documentation
 
-### 7.1 Test Case Template
+### 7.1 POC Test Documentation
 ```python
-class TestCase:
+class BasicTestCase:
     def __init__(self):
         self.template = {
-            'id': None,
-            'title': '',
-            'description': '',
-            'prerequisites': [],
+            'name': '',
+            'type': '',  # 'safety', 'quality', 'user'
             'steps': [],
-            'expected_results': [],
-            'actual_results': [],
-            'pass_criteria': [],
-            'safety_considerations': []
+            'expected': '',
+            'actual': '',
+            'pass': False
         }
 ```
 

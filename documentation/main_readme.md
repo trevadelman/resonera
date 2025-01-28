@@ -3,6 +3,24 @@
 ## Overview
 Resonera is a cutting-edge application that combines neuroscience, artificial intelligence, and audio processing to enhance learning, relaxation, and cognitive performance. By leveraging precise frequency generation and advanced brainwave entrainment techniques, the platform creates personalized audio experiences that guide users into optimal brain states for their desired outcomes.
 
+### Implementation Stages
+
+#### Current: Proof of Concept
+The initial POC focuses on core functionality:
+- Alpha state entrainment (8-14 Hz)
+- Basic binaural beat generation
+- Simple web interface
+- Essential safety features
+- Local development environment
+
+#### Future: Production Release
+The full platform will expand to include:
+- Multiple brainwave states
+- Advanced AI integration
+- Rich user interface
+- Cloud infrastructure
+- Comprehensive features
+
 ## Scientific Foundation
 
 ### Brainwave Entrainment Technology
@@ -77,6 +95,16 @@ The platform incorporates multiple safety features:
 ## Installation
 
 ### Prerequisites
+
+#### POC Requirements
+```bash
+python >= 3.9
+flask
+numpy
+sqlite3
+```
+
+#### Production Requirements (Future)
 ```bash
 python >= 3.9
 node >= 16.0
@@ -84,7 +112,7 @@ postgresql >= 13
 redis >= 6.0
 ```
 
-### Backend Setup
+### POC Setup
 1. Clone the repository:
 ```bash
 git clone https://github.com/yourusername/resonera.git
@@ -97,40 +125,42 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Install dependencies:
+3. Install POC dependencies:
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-poc.txt
 ```
 
-4. Set up environment variables:
+4. Initialize SQLite database:
 ```bash
-cp .env.example .env
-# Edit .env with your configuration
+flask init-db
 ```
 
-### Frontend Setup
-1. Install dependencies:
+5. Start development server:
 ```bash
-cd frontend
-npm install
+flask run
 ```
 
-2. Start development server:
-```bash
-npm run dev
-```
+### Production Setup (Future)
+See [deployment documentation](deployment.md) for full production setup instructions.
 
 ## Usage
 
 ### Developer Guidelines
 
-#### Code Structure
+#### POC Code Structure
+- `/app`: Flask application
+- `/static`: Basic HTML/CSS/JS
+- `/audio`: Core audio processing
+- `/utils`: Utility functions
+- `/tests`: Basic test suite
+
+#### Production Code Structure (Future)
 - `/backend`: FastAPI application
 - `/frontend`: React application
-- `/core`: Core audio processing
+- `/core`: Advanced audio processing
 - `/ai`: AI integration
-- `/utils`: Utility functions
-- `/tests`: Test suites
+- `/utils`: Extended utilities
+- `/tests`: Comprehensive tests
 
 #### Best Practices
 1. **Audio Processing**
@@ -151,27 +181,24 @@ npm run dev
    - Session length monitoring
    - User health checks
 
-### API Documentation
+### POC API Endpoints
 
-#### Authentication
+#### Basic Authentication
 ```python
-POST /api/auth/login
-POST /api/auth/register
-POST /api/auth/refresh
+POST /auth/register  # Basic registration
+POST /auth/login    # JWT authentication
 ```
 
-#### Audio Generation
+#### Core Audio
 ```python
-POST /api/audio/generate
-GET /api/audio/{id}
-PUT /api/audio/{id}/customize
+POST /audio/generate  # Generate alpha state audio
+GET /audio/{id}      # Retrieve generated audio
 ```
 
-#### User Management
+#### User Data
 ```python
-GET /api/user/profile
-PUT /api/user/preferences
-POST /api/user/feedback
+POST /feedback      # Basic session feedback
+GET /preferences    # User preferences
 ```
 
 ## Testing
@@ -193,23 +220,19 @@ pytest tests/test_audio_processing.py
 
 ## Deployment
 
-### Production Setup
-1. Build Docker images:
+### POC Testing
 ```bash
-docker-compose build
+# Run basic tests
+pytest tests/
+
+# Test audio generation
+pytest tests/test_audio_basic.py
 ```
 
-2. Deploy containers:
-```bash
-docker-compose up -d
-```
-
-### Monitoring
-- System health checks
-- User engagement metrics
-- Error tracking
-- Performance monitoring
-- Usage analytics
+### POC Monitoring
+- Basic error logging
+- Simple usage tracking
+- Audio generation metrics
 
 ## Contributing
 We welcome contributions that enhance the platform's scientific validity and user experience. Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and submission process.

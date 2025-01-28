@@ -5,11 +5,32 @@
 ### 1.1 Architecture Principles
 - Safety-First Design: All components prioritize user safety
 - Real-Time Processing: Minimize latency in audio generation and delivery
-- Scalable Architecture: Support growing user base and features
-- Resilient Design: Handle failures gracefully
-- Secure By Design: Protect sensitive user data
+- Simplicity: Start with minimal components for POC
+- Maintainable: Easy to understand and modify
+- Upgradeable: Clear path to production architecture
 
 ### 1.2 High-Level Architecture
+
+#### Proof of Concept Architecture
+```mermaid
+graph TB
+    Client[Basic Web Client]
+    Flask[Flask Server]
+    Auth[JWT Auth]
+    AudioGen[Audio Generator]
+    Safety[Safety Monitor]
+    SQLite[(SQLite DB)]
+    Files[Local Files]
+    
+    Client --> Flask
+    Flask --> Auth
+    Flask --> AudioGen
+    AudioGen --> Safety
+    Flask --> SQLite
+    AudioGen --> Files
+```
+
+#### Production Architecture (Future)
 ```mermaid
 graph TB
     Client[Client Applications]
@@ -34,15 +55,40 @@ graph TB
 
 ### 2.1 Core Services
 
-#### Audio Generation Engine
+#### POC Implementation
+
+##### Flask Server
 ```python
-class AudioGenerationService:
+from flask import Flask, request, jsonify
+from flask_jwt_extended import JWTManager, jwt_required
+
+app = Flask(__name__)
+jwt = JWTManager(app)
+
+class BasicServer:
+    def __init__(self):
+        self.audio_gen = AudioGenerator()
+        self.safety = SafetyMonitor()
+        
+    @jwt_required()
+    def generate_audio(self):
+        """
+        Basic audio generation endpoint.
+        """
+        params = request.get_json()
+        audio = self.audio_gen.generate(params)
+        if self.safety.validate(audio):
+            return jsonify({"status": "success", "file": "audio.wav"})
+```
+
+##### Audio Generation Engine
+```python
+class AudioGenerator:
     def __init__(self):
         self.components = {
-            'frequency_generator': FrequencyGenerator(),
-            'safety_validator': SafetyValidator(),
-            'audio_processor': AudioProcessor(),
-            'output_formatter': OutputFormatter()
+            'frequency_generator': BasicFrequencyGenerator(),
+            'safety_validator': BasicSafetyValidator(),
+            'audio_processor': BasicAudioProcessor()
         }
         
     async def generate_audio(self, request: AudioRequest) -> AudioResponse:
@@ -80,15 +126,12 @@ class AudioGenerationService:
             await self.handle_generation_error(e)
 ```
 
-#### Safety Monitoring Service
+##### Safety Monitoring Service
 ```python
-class SafetyMonitoringService:
+class BasicSafetyMonitor:
     def __init__(self):
-        self.monitors = {
-            'real_time': RealTimeMonitor(),
-            'session': SessionMonitor(),
-            'user': UserMonitor()
-        }
+        self.frequency_validator = FrequencyValidator()
+        self.volume_checker = VolumeChecker()
         
     async def monitor_session(self, session_id: str) -> SafetyStatus:
         """
@@ -102,13 +145,19 @@ class SafetyMonitoringService:
 
 ### 2.2 Supporting Services
 
-#### User Management Service
+##### User Management
 ```python
-class UserManagementService:
+class BasicUserManager:
     def __init__(self):
-        self.user_store = UserStore()
-        self.profile_manager = ProfileManager()
-        self.session_tracker = SessionTracker()
+        self.db = SQLiteDatabase('users.db')
+        
+    def create_user(self, username, password):
+        """Simple user creation with password hashing."""
+        hashed = self.hash_password(password)
+        return self.db.execute(
+            'INSERT INTO users (username, password) VALUES (?, ?)',
+            (username, hashed)
+        )
         
     async def get_user_profile(self, user_id: str) -> UserProfile:
         """
@@ -119,12 +168,18 @@ class UserManagementService:
         return UserProfile(profile, safety_settings)
 ```
 
-#### Analytics Service
+##### Basic Analytics
 ```python
-class AnalyticsService:
+class BasicAnalytics:
     def __init__(self):
-        self.metrics_collector = MetricsCollector()
-        self.analysis_engine = AnalysisEngine()
+        self.db = SQLiteDatabase('analytics.db')
+        
+    def log_session(self, user_id, session_data):
+        """Simple session logging."""
+        return self.db.execute(
+            'INSERT INTO sessions (user_id, data) VALUES (?, ?)',
+            (user_id, json.dumps(session_data))
+        )
         
     async def analyze_session(self, session_data: SessionData) -> Analysis:
         """
@@ -137,6 +192,28 @@ class AnalyticsService:
 ## 3. Data Flow Architecture
 
 ### 3.1 Audio Generation Pipeline
+
+#### POC Pipeline
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Flask
+    participant AudioGen
+    participant Safety
+    participant Files
+    
+    Client->>Flask: Request Audio
+    Flask->>Safety: Basic Validation
+    Safety-->>Flask: Validation Result
+    Flask->>AudioGen: Generate Audio
+    AudioGen->>Safety: Safety Check
+    Safety-->>AudioGen: Safety Result
+    AudioGen->>Files: Save Locally
+    Files-->>Flask: File Path
+    Flask-->>Client: Audio Response
+```
+
+#### Production Pipeline (Future)
 ```mermaid
 sequenceDiagram
     participant Client

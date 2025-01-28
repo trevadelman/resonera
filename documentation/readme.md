@@ -3,6 +3,23 @@
 ## Overview
 This repository contains comprehensive documentation for the Resonera application, a neuroscience-based audio entrainment platform. The documentation covers development roadmaps, technical specifications, safety guidelines, and implementation details.
 
+### Implementation Approach
+The platform is being developed in stages:
+
+1. Proof of Concept (Current Focus)
+   - Core alpha state entrainment
+   - Basic audio generation
+   - Essential safety features
+   - Simple user interface
+   - Local development setup
+
+2. Production Evolution
+   - Full frequency range support
+   - Advanced audio processing
+   - Comprehensive safety systems
+   - Rich user interface
+   - Cloud infrastructure
+
 ## Table of Contents
 
 ### Core Documentation
@@ -94,16 +111,24 @@ When updating documentation:
 
 ## Quick Start
 
-For new team members:
-1. Start with the [Main README](main_readme.md)
-2. Review the [Development Roadmap](development_roadmap.md)
-3. Study the [System Architecture](system_architecture.md)
-4. Read the [Neural Safety Guidelines](neural_safety_guidelines.md)
+### POC Development
+For new team members working on the POC:
+1. Start with the [Main README](main_readme.md) for basic setup
+2. Review the [Development Roadmap](development_roadmap.md) POC stages
+3. Study the [System Architecture](system_architecture.md) POC implementation
+4. Read the [Neural Safety Guidelines](neural_safety_guidelines.md) core requirements
 
-For specific implementations:
-- Audio Generation: See [Audio Generation Technical Specification](audio_generation_spec.md)
-- Testing: Refer to [Testing Strategy](testing_strategy.md)
-- User Experience: Check [User Journey](user_journey.md)
+For POC implementations:
+- Audio Generation: See [Audio Generation Technical Specification](audio_generation_spec.md) POC section
+- Testing: Refer to [Testing Strategy](testing_strategy.md) POC guidelines
+- User Experience: Check [User Journey](user_journey.md) POC flows
+
+### Production Development (Future)
+Once the POC is validated, refer to the production sections in each document for:
+- Advanced feature implementation
+- Scaling considerations
+- Full safety protocols
+- Comprehensive testing
 
 ## Contributing to Documentation
 

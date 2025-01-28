@@ -83,7 +83,21 @@ For detailed setup and development information, please refer to our comprehensiv
 Resonera is designed with user safety as the top priority. While brainwave entrainment is generally safe for most users, please review our [Neural Safety Guidelines](documentation/neural_safety_guidelines.md) before use.
 
 ## Project Status
-Currently in active development. See our [Development Roadmap](documentation/development_roadmap.md) for current status and upcoming features.
+Currently in active development with a focused proof-of-concept approach:
+
+### Current Focus (POC)
+- Alpha state entrainment (8-14 Hz)
+- Core safety features
+- Basic web interface
+- Local development environment
+
+### Future Expansion
+- Multiple brainwave states
+- Advanced AI integration
+- Rich user interface
+- Cloud infrastructure
+
+See our [Development Roadmap](documentation/development_roadmap.md) for detailed implementation stages and upcoming features.
 
 ## Contributing
 We welcome contributions that enhance the platform's scientific validity and user experience. Please review our contributing guidelines in the [Documentation Guide](documentation/readme.md).
