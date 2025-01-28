@@ -6,6 +6,7 @@ from scipy.io import wavfile
 import os
 from flask import current_app
 from tempfile import NamedTemporaryFile
+from .transitions import FrequencyTransition
 
 class AudioGenerator:
     """Generates neural entrainment audio using binaural beats and isochronic tones."""
@@ -22,6 +23,7 @@ class AudioGenerator:
         """Initialize the audio generator with default parameters."""
         self.sample_rate = 44100  # Standard audio sample rate
         self.carrier_frequency = 440  # Base frequency for binaural beats (Hz)
+        self.transition = FrequencyTransition(sample_rate=self.sample_rate)
         
     def get_optimal_carrier_frequency(self, target_frequency: float) -> float:
         """
@@ -130,7 +132,7 @@ class AudioGenerator:
         return audio
     
     def generate(self, frequency: float, duration: float,
-                volume: float = 0.7) -> str:
+                volume: float = 0.7, transition_type: str = 'sigmoid') -> str:
         """
         Generate complete neural entrainment audio file.
         
@@ -142,13 +144,70 @@ class AudioGenerator:
         Returns:
             str: Path to generated audio file
         """
-        # Generate both binaural beats and isochronic tones
-        left_binaural, right_binaural = self.generate_binaural_beat(
-            frequency, duration, volume * 0.5
-        )
-        isochronic = self.generate_isochronic_tone(
-            frequency, duration, volume * 0.5
-        )
+        # Generate frequency transition if needed
+        if hasattr(self, '_last_frequency') and self._last_frequency != frequency:
+            # Calculate optimal transition duration
+            transition_duration = self.transition.calculate_optimal_duration(
+                self._last_frequency, frequency
+            )
+            transition_duration = min(transition_duration, duration / 4)  # Max 25% of total duration
+            
+            # Generate transition frequencies
+            if transition_type == 'linear':
+                freq_curve = self.transition.linear_transition(
+                    self._last_frequency, frequency, transition_duration
+                )
+            elif transition_type == 'exponential':
+                freq_curve = self.transition.exponential_transition(
+                    self._last_frequency, frequency, transition_duration
+                )
+            else:  # default to sigmoid
+                freq_curve = self.transition.sigmoid_transition(
+                    self._last_frequency, frequency, transition_duration
+                )
+            
+            # Generate transition audio
+            left_binaural = np.array([])
+            right_binaural = np.array([])
+            isochronic = np.array([])
+            
+            # Generate audio for each frequency step
+            for freq in freq_curve:
+                left_step, right_step = self.generate_binaural_beat(
+                    freq, 1/self.sample_rate, volume * 0.5
+                )
+                iso_step = self.generate_isochronic_tone(
+                    freq, 1/self.sample_rate, volume * 0.5
+                )
+                
+                left_binaural = np.append(left_binaural, left_step)
+                right_binaural = np.append(right_binaural, right_step)
+                isochronic = np.append(isochronic, iso_step)
+            
+            # Generate remaining duration at target frequency
+            remaining_duration = duration - transition_duration
+            if remaining_duration > 0:
+                left_main, right_main = self.generate_binaural_beat(
+                    frequency, remaining_duration, volume * 0.5
+                )
+                iso_main = self.generate_isochronic_tone(
+                    frequency, remaining_duration, volume * 0.5
+                )
+                
+                left_binaural = np.append(left_binaural, left_main)
+                right_binaural = np.append(right_binaural, right_main)
+                isochronic = np.append(isochronic, iso_main)
+        else:
+            # No transition needed
+            left_binaural, right_binaural = self.generate_binaural_beat(
+                frequency, duration, volume * 0.5
+            )
+            isochronic = self.generate_isochronic_tone(
+                frequency, duration, volume * 0.5
+            )
+        
+        # Store current frequency for next transition
+        self._last_frequency = frequency
         
         # Combine isochronic tones with binaural beats
         left_channel = left_binaural + isochronic
