@@ -10,10 +10,38 @@ from tempfile import NamedTemporaryFile
 class AudioGenerator:
     """Generates neural entrainment audio using binaural beats and isochronic tones."""
     
+    # Frequency ranges for different brainwave states
+    FREQUENCY_RANGES = {
+        'delta': (0.5, 4.0),    # Deep sleep
+        'theta': (4.0, 8.0),    # Deep relaxation, meditation
+        'alpha': (8.0, 14.0),   # Relaxed focus
+        'gamma': (30.0, 100.0)  # High-level cognition
+    }
+    
     def __init__(self):
         """Initialize the audio generator with default parameters."""
         self.sample_rate = 44100  # Standard audio sample rate
         self.carrier_frequency = 440  # Base frequency for binaural beats (Hz)
+        
+    def get_optimal_carrier_frequency(self, target_frequency: float) -> float:
+        """
+        Calculate optimal carrier frequency based on target frequency.
+        Lower carrier frequencies for lower target frequencies to maintain clarity.
+        
+        Args:
+            target_frequency: The desired entrainment frequency
+            
+        Returns:
+            float: Optimal carrier frequency
+        """
+        if target_frequency <= 4.0:  # Delta
+            return 100.0  # Lower carrier for better perception
+        elif target_frequency <= 8.0:  # Theta
+            return 200.0
+        elif target_frequency <= 14.0:  # Alpha
+            return 440.0
+        else:  # Gamma
+            return 500.0  # Higher carrier for gamma frequencies
     
     def generate_sine_wave(self, frequency: float, duration: float,
                           volume: float = 0.7) -> np.ndarray:
@@ -45,9 +73,12 @@ class AudioGenerator:
         Returns:
             tuple: (left_channel, right_channel) audio samples
         """
+        # Get optimal carrier frequency for the target frequency
+        carrier = self.get_optimal_carrier_frequency(target_frequency)
+        
         # Generate carrier frequencies for left and right channels
-        left_freq = self.carrier_frequency
-        right_freq = self.carrier_frequency + target_frequency
+        left_freq = carrier
+        right_freq = carrier + target_frequency
         
         # Generate sine waves for each ear
         left_channel = self.generate_sine_wave(left_freq, duration, volume)
