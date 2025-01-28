@@ -5,6 +5,23 @@ All notable changes to the Resonera project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2025-01-28
+### Added
+- Frequency transition system in `src/resonera/audio/transitions.py`:
+  - Linear transitions for basic frequency changes
+  - Exponential transitions for natural progression
+  - Sigmoid transitions for smooth acceleration/deceleration
+  - Optimal duration calculation based on frequency difference
+- Enhanced audio generation in `src/resonera/audio/generator.py`:
+  - Integrated frequency transitions for smooth state changes
+  - Optimized carrier frequencies for each brainwave range
+  - Support for transition type selection (linear/exponential/sigmoid)
+
+### Technical
+- Added comprehensive test suites for transitions and enhanced generator
+- Improved audio quality with smooth frequency changes
+- Added optimal carrier frequency selection for better perception
+
 ## [0.1.1] - 2025-01-28
 ### Added
 - Support for all brainwave frequency ranges in `src/resonera/audio/generator.py`:
