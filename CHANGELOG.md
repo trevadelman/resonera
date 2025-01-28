@@ -5,6 +5,21 @@ All notable changes to the Resonera project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2025-01-28
+### Added
+- Harmonic relationship calculator in `src/resonera/audio/harmonics.py`:
+  - Scientifically validated carrier frequencies for brainwave states:
+    - Alpha wave (10 Hz → 200 Hz) for focus and meditation
+    - Theta wave (6 Hz → 288 Hz) for deep meditation
+    - Delta wave (2 Hz → 256 Hz) for deep sleep
+  - Flexible harmonic finding for non-core frequencies
+  - Comprehensive test suite in `src/resonera/audio/test_harmonics.py`
+
+### Technical
+- Added optimal carrier frequency selection based on harmonic ratios
+- Implemented ratio decomposition for harmonic analysis
+- Added extensive test coverage for core and edge cases
+
 ## [0.1.2] - 2025-01-28
 ### Added
 - Frequency transition system in `src/resonera/audio/transitions.py`:
