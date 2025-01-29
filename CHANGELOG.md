@@ -5,6 +5,26 @@ All notable changes to the Resonera project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5] - 2025-01-28
+### Added
+- Harmonic overtone generator in `src/resonera/audio/harmonics.py`:
+  - Multiple harmonic generation with configurable limits
+  - Amplitude decay control for natural sound
+  - Safety limits for maximum frequencies
+  - Integration with existing audio generation
+- Background sound mixer with EQ in `src/resonera/audio/mixer.py`:
+  - Three-band equalizer (low, mid, high)
+  - White noise generation with pink filtering
+  - Ambient drone generation with harmonics
+  - Support for both mono and stereo mixing
+  - Volume control and normalization
+
+### Technical
+- Added FFT-based frequency band filtering
+- Implemented proper signal normalization
+- Added comprehensive test suites for both components
+- Enhanced audio quality with rich harmonic content
+
 ## [0.1.4] - 2025-01-28
 ### Added
 - Email notification system in `src/resonera/core/email.py`:

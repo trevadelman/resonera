@@ -84,46 +84,58 @@ class BasicServer:
 ##### Audio Generation Engine
 ```python
 class AudioGenerator:
+    """Generates neural entrainment audio using binaural beats and isochronic tones."""
+    
     def __init__(self):
-        self.components = {
-            'frequency_generator': BasicFrequencyGenerator(),
-            'safety_validator': BasicSafetyValidator(),
-            'audio_processor': BasicAudioProcessor()
-        }
+        self.sample_rate = 44100
+        self.carrier_frequency = 440
+        self.transition = FrequencyTransition(sample_rate=self.sample_rate)
+        self.harmonic_generator = HarmonicOvertoneGenerator(sample_rate=self.sample_rate)
         
-    async def generate_audio(self, request: AudioRequest) -> AudioResponse:
+    def generate(self, frequency: float, duration: float,
+                volume: float = 0.7, transition_type: str = 'sigmoid') -> str:
         """
-        Main audio generation pipeline.
+        Generate complete neural entrainment audio file.
+        
+        Args:
+            frequency: Target frequency in Hz
+            duration: Duration in seconds
+            volume: Volume level (0-1)
+            transition_type: Type of frequency transition
+            
+        Returns:
+            str: Path to generated audio file
         """
         try:
-            # Validate request
-            validated_params = await self.validate_request(request)
-            
-            # Generate base frequencies
-            raw_audio = await self.components['frequency_generator'].generate(
-                validated_params
+            # Generate binaural beats with harmonics
+            left_channel, right_channel = self.generate_binaural_beat(
+                frequency, duration, volume * 0.5
             )
             
-            # Process audio
-            processed_audio = await self.components['audio_processor'].process(
-                raw_audio
+            # Generate isochronic tones with harmonics
+            isochronic = self.generate_isochronic_tone(
+                frequency, duration, volume * 0.5
             )
             
-            # Safety check
-            safety_result = await self.components['safety_validator'].validate(
-                processed_audio
-            )
+            # Combine and process
+            left_channel += isochronic
+            right_channel += isochronic
             
-            if not safety_result.is_safe:
-                raise SafetyValidationError(safety_result.issues)
-                
-            # Format output
-            return await self.components['output_formatter'].format(
-                processed_audio
-            )
+            # Apply fades and normalize
+            left_channel = self.apply_fade(left_channel)
+            right_channel = self.apply_fade(right_channel)
+            
+            # Save to file
+            stereo_audio = np.vstack((left_channel, right_channel)).T
+            audio_16bit = (stereo_audio * 32767).astype(np.int16)
+            
+            temp_file = NamedTemporaryFile(suffix='.wav', delete=False)
+            wavfile.write(temp_file.name, self.sample_rate, audio_16bit)
+            
+            return temp_file.name
             
         except Exception as e:
-            await self.handle_generation_error(e)
+            self.handle_generation_error(e)
 ```
 
 ##### Safety Monitoring Service

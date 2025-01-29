@@ -1,5 +1,5 @@
 """
-Harmonic relationship calculations for optimal frequency combinations.
+Harmonic relationship calculations and overtone generation for optimal frequency combinations.
 """
 import numpy as np
 import logging
@@ -117,7 +117,6 @@ class HarmonicCalculator:
             logger.debug(f"        No harmonic match found, remainder: {ratio}")
         return ratio  # Return the unmatched ratio
 
-
     def optimize_carrier_frequency(self, target_freq: float,
                                  min_carrier: float = 200.0,
                                  max_carrier: float = 1000.0,
@@ -134,9 +133,6 @@ class HarmonicCalculator:
           
         - Delta wave (2 Hz) -> 256 Hz carrier (128:1 ratio = 2^7)
           Optimal for delta state entrainment (0.5-4 Hz range)
-        
-        For other frequencies, finds the lowest valid carrier frequency that
-        maintains a harmonic relationship while staying within the allowed range.
         
         Args:
             target_freq: Target entrainment frequency in Hz
@@ -184,8 +180,6 @@ class HarmonicCalculator:
                     
         return min_carrier
 
-
-
     def validate_frequency_combination(self, freq1: float,
                                     freq2: float,
                                     max_ratio: float = 2.0) -> bool:
@@ -209,3 +203,110 @@ class HarmonicCalculator:
         
         # Check if ratio is within acceptable range
         return ratio <= max_ratio
+
+
+class HarmonicOvertoneGenerator:
+    """Generate harmonic overtones for neural entrainment."""
+    
+    def __init__(self, sample_rate: int = 44100):
+        """
+        Initialize the harmonic overtone generator.
+        
+        Args:
+            sample_rate: Audio sample rate in Hz
+        """
+        self.sample_rate = sample_rate
+        self.calculator = HarmonicCalculator()
+        self.safety_limits = {
+            'max_frequency': 1000.0,  # Maximum safe frequency for overtones
+            'max_harmonics': 5,       # Maximum number of harmonics to generate
+            'min_amplitude': 0.1,     # Minimum amplitude for overtones
+            'amplitude_decay': 0.7    # Decay factor for each successive harmonic
+        }
+        
+    def generate_overtones(self, fundamental: float, duration: float,
+                          base_amplitude: float = 0.5) -> np.ndarray:
+        """
+        Generate harmonic overtones for a fundamental frequency.
+        
+        Args:
+            fundamental: Fundamental frequency in Hz
+            duration: Duration in seconds
+            base_amplitude: Base amplitude for fundamental (0-1)
+            
+        Returns:
+            numpy.ndarray: Combined audio with harmonics
+            
+        Raises:
+            ValueError: If frequency is invalid or exceeds safety limits
+        """
+        # Validate fundamental frequency
+        if fundamental <= 0:
+            raise ValueError("Fundamental frequency must be positive")
+        if fundamental > self.safety_limits['max_frequency']:
+            raise ValueError(f"Frequency {fundamental} Hz exceeds safety limit of {self.safety_limits['max_frequency']} Hz")
+            
+        # Calculate time array
+        t = np.linspace(0, duration, int(self.sample_rate * duration), False)
+        
+        # Start with fundamental frequency
+        combined = np.zeros_like(t)
+        amplitude = base_amplitude
+        
+        # Generate fundamental
+        combined += amplitude * np.sin(2 * np.pi * fundamental * t)
+        
+        # Generate overtones
+        for n in range(2, self.safety_limits['max_harmonics'] + 1):
+            harmonic_freq = fundamental * n
+            
+            # Check if harmonic exceeds safety limit
+            if harmonic_freq > self.safety_limits['max_frequency']:
+                break
+                
+            # Calculate amplitude for this harmonic
+            amplitude *= self.safety_limits['amplitude_decay']
+            if amplitude < self.safety_limits['min_amplitude']:
+                break
+                
+            # Add harmonic to combined signal
+            combined += amplitude * np.sin(2 * np.pi * harmonic_freq * t)
+        
+        # Normalize to prevent clipping
+        max_amplitude = np.max(np.abs(combined))
+        if max_amplitude > 1:
+            combined /= max_amplitude
+            
+        return combined
+        
+    def generate_enhanced_frequency(self, target_freq: float, duration: float,
+                                  base_amplitude: float = 0.5) -> np.ndarray:
+        """
+        Generate a frequency with harmonic enhancement for better entrainment.
+        
+        Args:
+            target_freq: Target frequency for entrainment
+            duration: Duration in seconds
+            base_amplitude: Base amplitude (0-1)
+            
+        Returns:
+            numpy.ndarray: Enhanced audio signal with harmonics
+        """
+        # Get optimal carrier frequency
+        carrier = self.calculator.optimize_carrier_frequency(target_freq)
+        
+        # Generate carrier with overtones
+        carrier_signal = self.generate_overtones(carrier, duration, base_amplitude * 0.6)
+        
+        # Generate target frequency with subtle overtones
+        target_signal = self.generate_overtones(target_freq, duration, base_amplitude * 0.4)
+        
+        # Combine signals
+        combined = carrier_signal + target_signal
+        
+        # Normalize to prevent clipping
+        max_amplitude = np.max(np.abs(combined))
+        if max_amplitude > 1:
+            combined /= max_amplitude
+            
+        return combined

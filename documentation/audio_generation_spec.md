@@ -133,29 +133,66 @@ class BasicTransitionController:
 - Optimized step calculation
 ```
 
-### 2.2 POC Harmonic System
+### 2.2 Harmonic System
 ```python
-class BasicHarmonicGenerator:
-    def generate_harmonics(self, freq):
-        """
-        Basic harmonic generation.
+class HarmonicOvertoneGenerator:
+    """Generate harmonic overtones for neural entrainment."""
+    
+    def __init__(self, sample_rate: int = 44100):
+        self.sample_rate = sample_rate
+        self.calculator = HarmonicCalculator()
+        self.safety_limits = {
+            'max_frequency': 1000.0,  # Maximum safe frequency for overtones
+            'max_harmonics': 5,       # Maximum number of harmonics to generate
+            'min_amplitude': 0.1,     # Minimum amplitude for overtones
+            'amplitude_decay': 0.7    # Decay factor for each successive harmonic
+        }
         
-        POC Features:
-        - Single harmonic only
-        - Basic safety limits
-        - Fixed amplitude
+    def generate_overtones(self, fundamental: float, duration: float,
+                          base_amplitude: float = 0.5) -> np.ndarray:
         """
-        if freq * 2 < 40:  # Safe limit for POC
-            return [freq * 2]
-        return []
+        Generate harmonic overtones for a fundamental frequency.
+        
+        Args:
+            fundamental: Fundamental frequency in Hz
+            duration: Duration in seconds
+            base_amplitude: Base amplitude for fundamental (0-1)
+            
+        Returns:
+            numpy.ndarray: Combined audio with harmonics
+        """
+        # Validate fundamental frequency
+        if fundamental <= 0:
+            raise ValueError("Fundamental frequency must be positive")
+        if fundamental > self.safety_limits['max_frequency']:
+            raise ValueError(f"Frequency {fundamental} Hz exceeds safety limit")
+            
+        t = np.linspace(0, duration, int(self.sample_rate * duration), False)
+        combined = np.zeros_like(t)
+        amplitude = base_amplitude
+        
+        # Generate fundamental and harmonics
+        for n in range(1, self.safety_limits['max_harmonics'] + 1):
+            harmonic_freq = fundamental * n
+            if harmonic_freq > self.safety_limits['max_frequency']:
+                break
+                
+            combined += amplitude * np.sin(2 * np.pi * harmonic_freq * t)
+            amplitude *= self.safety_limits['amplitude_decay']
+            
+        # Normalize to prevent clipping
+        max_amplitude = np.max(np.abs(combined))
+        if max_amplitude > 1:
+            combined /= max_amplitude
+            
+        return combined
 ```
 
-### Migration to Production
-- Multiple harmonic generation
-- Dynamic amplitude control
-- Advanced safety limits
-- Harmonic relationship analysis
-```
+### Features
+- Multiple harmonic generation with configurable limits
+- Dynamic amplitude control with natural decay
+- Comprehensive safety validation
+- Automatic normalization
 
 ## 3. Audio Processing Pipeline
 
@@ -182,18 +219,87 @@ class AudioProcessor:
 ### 3.2 Background Sound Integration
 ```python
 class BackgroundSoundMixer:
-    def mix_background(self, main_audio, background_type, volume=0.3):
+    """Mix background sounds with neural entrainment audio."""
+    
+    def __init__(self, sample_rate: int = 44100):
+        self.sample_rate = sample_rate
+        self.equalizer = Equalizer(sample_rate=sample_rate)
+        
+    def generate_white_noise(self, duration: float,
+                           volume: float = 0.1) -> np.ndarray:
+        """Generate pink-filtered white noise."""
+        samples = int(self.sample_rate * duration)
+        noise = np.random.normal(0, 1, samples)
+        
+        # Shape noise with pink filter (more natural sounding)
+        fft = np.fft.rfft(noise)
+        freqs = np.fft.rfftfreq(len(noise))
+        pink_filter = 1 / np.sqrt(freqs[1:])
+        fft[1:] *= pink_filter
+        noise = np.fft.irfft(fft)
+        
+        return noise / np.max(np.abs(noise)) * volume
+        
+    def generate_ambient_drone(self, duration: float,
+                             base_freq: float = 100.0,
+                             volume: float = 0.1) -> np.ndarray:
+        """Generate rich ambient drone with harmonics."""
+        t = np.linspace(0, duration, int(self.sample_rate * duration), False)
+        
+        harmonics = [1.0, 1.5, 2.0, 2.5, 3.0]
+        amplitudes = [1.0, 0.5, 0.3, 0.2, 0.1]
+        
+        drone = np.zeros_like(t)
+        for harmonic, amplitude in zip(harmonics, amplitudes):
+            freq = base_freq * harmonic
+            drone += amplitude * np.sin(2 * np.pi * freq * t)
+            
+        # Add subtle modulation
+        mod_freq = 0.1
+        modulation = 1 + 0.1 * np.sin(2 * np.pi * mod_freq * t)
+        drone *= modulation
+        
+        return drone / np.max(np.abs(drone)) * volume
+        
+    def mix_background(self, main_audio: Union[np.ndarray, tuple],
+                      background_type: str = 'white_noise',
+                      volume: float = 0.1,
+                      eq_gains: Optional[dict] = None) -> Union[np.ndarray, tuple]:
         """
         Mix background sounds with main entrainment audio.
         
-        Parameters:
-        - main_audio: Primary audio array
-        - background_type: 'nature', 'white_noise', 'ambient'
-        - volume: Background volume level (0.0-1.0)
+        Args:
+            main_audio: Primary audio (mono array or stereo tuple)
+            background_type: Type of background ('white_noise', 'ambient')
+            volume: Background volume level (0-1)
+            eq_gains: Optional EQ gains (e.g., {'low': -3, 'mid': 0, 'high': 2})
         """
-        background = self.load_background(background_type)
-        return main_audio + (background * volume)
+        is_stereo = isinstance(main_audio, tuple)
+        duration = len(main_audio[0] if is_stereo else main_audio) / self.sample_rate
+        
+        # Generate and process background
+        background = (self.generate_white_noise(duration, volume)
+                     if background_type == 'white_noise'
+                     else self.generate_ambient_drone(duration, volume=volume))
+                     
+        if eq_gains:
+            background = self.equalizer.process(background, eq_gains)
+            
+        # Mix and normalize
+        if is_stereo:
+            mixed = tuple(ch + background for ch in main_audio)
+            return tuple(ch / max(1, np.max(np.abs(ch))) for ch in mixed)
+        else:
+            mixed = main_audio + background
+            return mixed / max(1, np.max(np.abs(mixed)))
 ```
+
+### Features
+- Multiple background types (white noise, ambient drones)
+- Three-band equalizer integration
+- Stereo and mono support
+- Automatic normalization
+- Volume control
 
 ## 4. Safety Systems
 
@@ -290,42 +396,61 @@ class VolumeSafetyError(AudioGenerationError):
 
 ### 7.1 Basic Usage
 ```python
-# Generate 5-minute alpha state session
-generator = BinauralBeatGenerator()
-left, right = generator.generate_binaural(
-    carrier_freq=250,
-    target_freq=10,  # Alpha state
-    duration=300
+# Initialize components
+generator = AudioGenerator()
+mixer = BackgroundSoundMixer(sample_rate=44100)
+
+# Generate 5-minute alpha state session with harmonics
+left, right = generator.generate_binaural_beat(
+    target_frequency=10,  # Alpha state
+    duration=300,
+    volume=0.7
 )
 
-# Add background sounds
-mixer = BackgroundSoundMixer()
+# Add background sounds with EQ
+background_eq = {
+    'low': -3,    # Reduce low frequencies
+    'mid': 0,     # Keep mids neutral
+    'high': 2     # Slightly boost highs
+}
+
 final_audio = mixer.mix_background(
     main_audio=(left, right),
-    background_type='nature',
-    volume=0.2
+    background_type='white_noise',  # or 'ambient'
+    volume=0.1,
+    eq_gains=background_eq
 )
 ```
 
 ### 7.2 Advanced Usage
 ```python
-# Generate complex transition session
-controller = FrequencyTransitionController()
-transitions = controller.calculate_transition_steps(
-    start_freq=4,  # Theta
-    end_freq=10,   # Alpha
-    duration=600
+# Generate complex session with transitions and harmonics
+generator = AudioGenerator()
+
+# Generate a session transitioning from theta to alpha
+audio_file = generator.generate(
+    frequency=4,      # Start at theta
+    duration=600,     # 10 minutes
+    volume=0.7,
+    transition_type='sigmoid'  # Smooth transition
 )
 
-generator = BinauralBeatGenerator()
-audio_segments = []
-for time, freq in transitions:
-    segment = generator.generate_binaural(
-        carrier_freq=250,
-        target_freq=freq,
-        duration=0.1
-    )
-    audio_segments.append(segment)
+# The generator automatically:
+# - Adds harmonic overtones for richer sound
+# - Handles frequency transitions smoothly
+# - Combines binaural beats and isochronic tones
+# - Applies proper fades and normalization
 
-final_audio = np.concatenate(audio_segments)
+# Add ambient background with EQ
+mixer = BackgroundSoundMixer(sample_rate=44100)
+final_audio = mixer.mix_background(
+    main_audio=audio_file,
+    background_type='ambient',
+    volume=0.15,
+    eq_gains={
+        'low': 0,     # Keep bass
+        'mid': -6,    # Reduce mids
+        'high': -12   # Significantly reduce highs
+    }
+)
 ```

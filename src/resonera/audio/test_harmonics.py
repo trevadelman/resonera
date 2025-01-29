@@ -1,10 +1,10 @@
 """
-Unit tests for harmonic relationship calculations.
+Unit tests for harmonic relationship calculations and overtone generation.
 """
 import unittest
 import numpy as np
 import logging
-from .harmonics import HarmonicCalculator
+from .harmonics import HarmonicCalculator, HarmonicOvertoneGenerator
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -190,6 +190,95 @@ class TestHarmonicCalculator(unittest.TestCase):
                 100.0, 180.0, max_ratio=1.8
             )
         )  # Within custom ratio limit
+
+
+class TestHarmonicOvertoneGenerator(unittest.TestCase):
+    def setUp(self):
+        """Initialize the harmonic overtone generator for testing."""
+        self.sample_rate = 44100
+        self.generator = HarmonicOvertoneGenerator(sample_rate=self.sample_rate)
+        self.test_duration = 1.0  # 1 second
+        self.test_frequency = 100.0  # 100 Hz
+        
+    def test_generate_overtones(self):
+        """Test generation of harmonic overtones."""
+        # Generate overtones
+        audio = self.generator.generate_overtones(
+            self.test_frequency,
+            self.test_duration,
+            base_amplitude=0.5
+        )
+        
+        # Check basic properties
+        expected_samples = int(self.sample_rate * self.test_duration)
+        self.assertEqual(len(audio), expected_samples)
+        
+        # Check amplitude is within bounds
+        self.assertLessEqual(np.max(np.abs(audio)), 1.0)
+        
+        # Perform FFT to verify frequency content
+        fft = np.fft.fft(audio)
+        freqs = np.fft.fftfreq(len(audio), 1/self.sample_rate)
+        
+        # Check for presence of fundamental
+        fundamental_idx = np.argmin(np.abs(freqs - self.test_frequency))
+        self.assertGreater(np.abs(fft[fundamental_idx]), 0)
+        
+        # Check for presence of harmonics
+        for n in range(2, self.generator.safety_limits['max_harmonics'] + 1):
+            harmonic_freq = self.test_frequency * n
+            if harmonic_freq > self.generator.safety_limits['max_frequency']:
+                break
+            
+            harmonic_idx = np.argmin(np.abs(freqs - harmonic_freq))
+            self.assertGreater(np.abs(fft[harmonic_idx]), 0)
+            
+    def test_generate_enhanced_frequency(self):
+        """Test generation of enhanced frequency with harmonics."""
+        # Generate enhanced frequency
+        audio = self.generator.generate_enhanced_frequency(
+            self.test_frequency,
+            self.test_duration,
+            base_amplitude=0.5
+        )
+        
+        # Check basic properties
+        expected_samples = int(self.sample_rate * self.test_duration)
+        self.assertEqual(len(audio), expected_samples)
+        
+        # Check amplitude is within bounds
+        self.assertLessEqual(np.max(np.abs(audio)), 1.0)
+        
+        # Perform FFT to verify frequency content
+        fft = np.fft.fft(audio)
+        freqs = np.fft.fftfreq(len(audio), 1/self.sample_rate)
+        
+        # Get carrier frequency
+        carrier = self.generator.calculator.optimize_carrier_frequency(self.test_frequency)
+        
+        # Check for presence of carrier and its harmonics
+        carrier_idx = np.argmin(np.abs(freqs - carrier))
+        self.assertGreater(np.abs(fft[carrier_idx]), 0)
+        
+        # Check for presence of target frequency and its harmonics
+        target_idx = np.argmin(np.abs(freqs - self.test_frequency))
+        self.assertGreater(np.abs(fft[target_idx]), 0)
+        
+    def test_safety_limits(self):
+        """Test safety limits for overtone generation."""
+        # Test maximum frequency limit
+        high_freq = self.generator.safety_limits['max_frequency'] * 2
+        with self.assertRaises(ValueError):
+            self.generator.generate_overtones(high_freq, self.test_duration)
+            
+        # Test negative frequency
+        with self.assertRaises(ValueError):
+            self.generator.generate_overtones(-100, self.test_duration)
+            
+        # Test zero frequency
+        with self.assertRaises(ValueError):
+            self.generator.generate_overtones(0, self.test_duration)
+
 
 if __name__ == '__main__':
     unittest.main()
