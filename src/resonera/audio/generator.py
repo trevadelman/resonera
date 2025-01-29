@@ -7,6 +7,7 @@ import os
 from flask import current_app
 from tempfile import NamedTemporaryFile
 from .transitions import FrequencyTransition
+from .harmonics import HarmonicOvertoneGenerator
 
 class AudioGenerator:
     """Generates neural entrainment audio using binaural beats and isochronic tones."""
@@ -24,6 +25,7 @@ class AudioGenerator:
         self.sample_rate = 44100  # Standard audio sample rate
         self.carrier_frequency = 440  # Base frequency for binaural beats (Hz)
         self.transition = FrequencyTransition(sample_rate=self.sample_rate)
+        self.harmonic_generator = HarmonicOvertoneGenerator(sample_rate=self.sample_rate)
         
     def get_optimal_carrier_frequency(self, target_frequency: float) -> float:
         """
@@ -65,7 +67,7 @@ class AudioGenerator:
     def generate_binaural_beat(self, target_frequency: float, duration: float,
                               volume: float = 0.7) -> tuple[np.ndarray, np.ndarray]:
         """
-        Generate binaural beat using two slightly different frequencies.
+        Generate binaural beat using two slightly different frequencies with harmonic enhancement.
         
         Args:
             target_frequency: Desired beat frequency in Hz
@@ -82,16 +84,16 @@ class AudioGenerator:
         left_freq = carrier
         right_freq = carrier + target_frequency
         
-        # Generate sine waves for each ear
-        left_channel = self.generate_sine_wave(left_freq, duration, volume)
-        right_channel = self.generate_sine_wave(right_freq, duration, volume)
+        # Generate enhanced carrier waves with harmonics
+        left_channel = self.harmonic_generator.generate_enhanced_frequency(left_freq, duration, volume)
+        right_channel = self.harmonic_generator.generate_enhanced_frequency(right_freq, duration, volume)
         
         return left_channel, right_channel
     
     def generate_isochronic_tone(self, frequency: float, duration: float,
                                 volume: float = 0.7) -> np.ndarray:
         """
-        Generate isochronic tone by modulating amplitude.
+        Generate isochronic tone by modulating amplitude with harmonic enhancement.
         
         Args:
             frequency: Tone frequency in Hz
@@ -101,15 +103,15 @@ class AudioGenerator:
         Returns:
             numpy.ndarray: Audio samples
         """
-        # Generate carrier wave
+        # Generate enhanced carrier wave with harmonics
         t = np.linspace(0, duration, int(self.sample_rate * duration), False)
-        carrier = np.sin(2 * np.pi * self.carrier_frequency * t)
+        carrier = self.harmonic_generator.generate_enhanced_frequency(self.carrier_frequency, duration, volume)
         
         # Generate modulation envelope
         modulation = 0.5 * (1 + np.sin(2 * np.pi * frequency * t))
         
-        # Apply modulation and volume
-        return carrier * modulation * volume
+        # Apply modulation
+        return carrier * modulation
     
     def apply_fade(self, audio: np.ndarray, fade_duration: float = 0.1) -> np.ndarray:
         """
