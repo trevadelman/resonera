@@ -28,6 +28,11 @@ class Config:
     MIN_FREQUENCY = 0.5  # Minimum frequency in Hz
     MAX_VOLUME = 0.8    # Maximum volume (0-1)
     
+    # Email settings
+    EMAIL_USER = os.environ.get('EMAIL_USER')
+    EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+    EMAIL_FROM = os.environ.get('EMAIL_FROM', 'Resonera <noreply@resonera.com>')
+    
     def init_app(self, app):
         """Initialize application configuration."""
         os.makedirs(self.AUDIO_UPLOAD_FOLDER, exist_ok=True)

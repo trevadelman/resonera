@@ -46,8 +46,8 @@
 ### Communication System
 #### Initial Proof of Concept
 - [x] Create simple notification preferences in SQLite
-- [ ] Implement basic email notifications using SMTP
-- [ ] Basic email templates for user communication
+- [x] Implement basic email notifications using SMTP
+- [x] Basic email templates for user communication
 
 **Migration Path to Production:**
 - Add Twilio for SMS capabilities

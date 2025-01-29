@@ -130,12 +130,28 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements-poc.txt
 ```
 
-4. Initialize SQLite database:
+4. Configure environment variables:
+Create a `.env` file in the root directory with the following configuration:
+```
+FLASK_APP=src/run.py
+FLASK_ENV=development
+SECRET_KEY=your-secret-key
+JWT_SECRET_KEY=your-jwt-secret-key
+DATABASE_URL=sqlite:///resonera.db
+
+# Email Configuration
+EMAIL_USER=your-email@example.com
+EMAIL_PASSWORD=your-app-specific-password
+EMAIL_FROM=Resonera <noreply@resonera.com>
+```
+Note: For Gmail accounts, use an App Password instead of your regular password. You can generate one in your Google Account security settings.
+
+5. Initialize SQLite database:
 ```bash
 flask init-db
 ```
 
-5. Start development server:
+6. Start development server:
 ```bash
 flask run
 ```

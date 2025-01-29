@@ -5,6 +5,23 @@ All notable changes to the Resonera project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2025-01-28
+### Added
+- Email notification system in `src/resonera/core/email.py`:
+  - MIME-based email functionality with HTML and plain text support
+  - Configurable email templates in `src/resonera/core/templates/email/`
+  - Welcome email template with safety guidelines and getting started info
+- Environment configuration for email system:
+  - Added email configuration to `.env`
+  - Updated configuration handling in `src/resonera/core/config.py`
+  - Documented setup process in main documentation
+
+### Technical
+- Implemented EmailSender class with comprehensive error handling
+- Added template loading system for email content
+- Created test script for email functionality verification
+- Updated documentation with email configuration guidelines
+
 ## [0.1.3] - 2025-01-28
 ### Added
 - Harmonic relationship calculator in `src/resonera/audio/harmonics.py`:
